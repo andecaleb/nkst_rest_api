@@ -1,0 +1,1053 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS (Following 01-11 NKST App MVP Specification)
+// ============================================================================
+
+enum ChurchStatus {
+  active
+  inactive
+}
+
+enum Gender {
+  male
+  female
+}
+
+enum VerificationState {
+  registered
+  pending_verification
+  verified
+  rejected
+  suspended
+}
+
+enum ProfileVisibility {
+  public
+  private
+}
+
+enum TokenChannel {
+  email
+  phone
+}
+
+enum TokenPurpose {
+  account_verify
+  password_reset
+}
+
+enum VerificationPathway {
+  catechism
+  acknowledgement
+  church
+  platform
+}
+
+enum VerificationRequestStatus {
+  submitted
+  ready_for_review
+  approved
+  rejected
+}
+
+enum PostType {
+  text
+  image
+  video
+  document
+}
+
+enum PostCategory {
+  general
+  news
+  notice
+  advert
+  important
+  announcement
+}
+
+enum Audience {
+  general
+  church
+  group
+}
+
+enum PostStatus {
+  held_unverified
+  draft
+  pending_review
+  needs_correction
+  approved
+  rejected
+  removed
+}
+
+enum MediaKind {
+  image
+  video
+  document
+}
+
+enum ModerationSubjectType {
+  post
+  photo
+  resource
+}
+
+enum ModerationActionType {
+  approve
+  reject
+  request_correction
+  hide
+  remove
+}
+
+enum CommentStatus {
+  held_unverified
+  visible
+  hidden
+  removed
+}
+
+enum ReactionSubjectType {
+  post
+  comment
+}
+
+enum ReactionKind {
+  like
+  amen
+  love
+}
+
+enum ReportSubjectType {
+  post
+  comment
+  photo
+}
+
+enum ReportReason {
+  spam
+  inappropriate
+  misinformation
+  minor_removal_request
+  other
+}
+
+enum ReportStatus {
+  open
+  dismissed
+  actioned
+}
+
+enum GroupScope {
+  church
+  national
+}
+
+enum GroupVisibility {
+  public
+  private
+}
+
+enum GroupJoinMode {
+  open
+  approval
+}
+
+enum GenderRestriction {
+  any
+  male
+  female
+}
+
+enum GroupStatus {
+  active
+  archived
+}
+
+enum GroupMemberRole {
+  member
+  admin
+}
+
+enum GroupJoinRequestStatus {
+  held_unverified
+  pending
+  approved
+  rejected
+}
+
+enum PhotoCategory {
+  worship_service
+  events
+  choir_and_music
+  youth
+  women
+  men
+  outreach
+  buildings
+  other
+}
+
+enum PhotoStatus {
+  held_unverified
+  pending_review
+  approved
+  rejected
+  removed
+}
+
+enum ResourceCategory {
+  sermons
+  hymns_and_music
+  books_and_publications
+  study_and_training
+  forms_and_templates
+  other
+}
+
+enum ResourceType {
+  document
+  audio
+  video
+  image
+  physical
+}
+
+enum ResourceFormat {
+  digital
+  hard_copy
+}
+
+enum ResourceAccess {
+  free
+  paid
+}
+
+enum ResourceStatus {
+  held_unverified
+  draft
+  submitted
+  pending_review
+  approved
+  rejected
+  archived
+}
+
+enum SellerPlan {
+  one_month   @map("1_month")
+  one_year    @map("1_year")
+  two_years   @map("2_years")
+  three_years @map("3_years")
+  four_years  @map("4_years")
+  five_years  @map("5_years")
+  lifetime
+}
+
+enum SellerAccessStatus {
+  active
+  expired
+  revoked
+}
+
+enum OrderStatus {
+  requested
+  accepted
+  declined
+  fulfilled
+  awaiting_delivery
+  received
+  closed
+  cancelled
+}
+
+enum RecitationStatus {
+  draft
+  published
+}
+
+enum DevicePlatform {
+  ios
+  android
+  web
+}
+
+// ============================================================================
+// 01 — ROLES & PERMISSIONS (Functional RBAC)
+// ============================================================================
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  permissions RolePermission[]
+  memberRoles MemberRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String   @id @default(uuid())
+  roleId       String   @map("role_id")
+  permissionId String   @map("permission_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model MemberRole {
+  id         String   @id @default(uuid())
+  memberId   String   @map("member_id")
+  roleId     String   @map("role_id")
+  churchId   String?  @map("church_id")
+  groupId    String?  @map("group_id")
+  assignedBy String?  @map("assigned_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([roleId])
+  @@map("member_roles")
+}
+
+// ============================================================================
+// 03 — CHURCHES & AFFILIATION
+// ============================================================================
+
+model Church {
+  id             String       @id @default(uuid())
+  name           String
+  state          String
+  lga            String
+  town           String
+  address        String
+  landmark       String?
+  phones         String[]
+  email          String?
+  latitude       Float?
+  longitude      Float?
+  photoUrl       String?      @map("photo_url")
+  adminMemberId  String?      @map("admin_member_id")
+  isHeadquarters Boolean      @default(false) @map("is_headquarters")
+  status         ChurchStatus @default(active)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  deletedAt      DateTime?    @map("deleted_at")
+
+  adminMember          Member?               @relation("ChurchAdmin", fields: [adminMemberId], references: [id], onDelete: SetNull)
+  members              Member[]              @relation("ChurchMembers")
+  gallery              Gallery?
+  posts                Post[]                @relation("PostAuthorChurch")
+  audiencePosts        Post[]                @relation("PostAudienceChurch")
+  groups               Group[]
+  allowedGroups        GroupAllowedChurch[]
+  photos               Photo[]
+  resources            Resource[]
+  sellerAccesses       SellerAccess[]
+  orders               Order[]
+  verificationRequests VerificationRequest[]
+
+  @@unique([name, lga])
+  @@index([state])
+  @@index([lga])
+  @@index([latitude, longitude])
+  @@map("churches")
+}
+
+// ============================================================================
+// 02 — MEMBERS, AUTHENTICATION & PROFILES
+// ============================================================================
+
+model Member {
+  id                  String            @id @default(uuid())
+  firstName           String            @map("first_name")
+  middleName          String?           @map("middle_name")
+  surname             String
+  email               String            @unique
+  phone               String            @unique
+  passwordHash        String            @map("password_hash")
+  gender              Gender
+  dateOfBirth         DateTime          @map("date_of_birth")
+  photoUrl            String?           @map("photo_url")
+  bio                 String?
+  state               String
+  lga                 String
+  residentialLocation String            @map("residential_location")
+  churchId            String            @map("church_id")
+  verificationState   VerificationState @default(registered) @map("verification_state")
+  platformVerified    Boolean           @default(false) @map("platform_verified")
+  profileVisibility   ProfileVisibility @default(public) @map("profile_visibility")
+  isPlatformAdmin     Boolean           @default(false) @map("is_platform_admin")
+  emailVerifiedAt     DateTime?         @map("email_verified_at")
+  phoneVerifiedAt     DateTime?         @map("phone_verified_at")
+  deactivatedAt       DateTime?         @map("deactivated_at")
+  suspensionReason    String?           @map("suspension_reason")
+  suspendedAt         DateTime?         @map("suspended_at")
+  suspendedById       String?           @map("suspended_by_id")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+  deletedAt           DateTime?         @map("deleted_at")
+
+  church                 Church                  @relation("ChurchMembers", fields: [churchId], references: [id])
+  administeredChurches   Church[]                @relation("ChurchAdmin")
+  socialLinks            MemberSocialLink[]
+  sessions               Session[]
+  verificationTokens     VerificationToken[]
+  memberRoles            MemberRole[]
+  verificationRequests   VerificationRequest[]   @relation("VerificationRequester")
+  reviewedVerifications  VerificationRequest[]   @relation("VerificationReviewer")
+  acknowledgementsGiven  Acknowledgement[]
+  posts                  Post[]
+  comments               Comment[]
+  reactions              Reaction[]
+  reportsFiled           Report[]                @relation("ReportReporter")
+  reportsHandled         Report[]                @relation("ReportHandler")
+  moderationActions      ModerationAction[]
+  groupsCreated          Group[]
+  groupMemberships       GroupMember[]
+  groupJoinRequests      GroupJoinRequest[]      @relation("JoinRequester")
+  groupJoinDecisions     GroupJoinRequest[]      @relation("JoinDecider")
+  groupInvitationsSent   GroupJoinRequest[]      @relation("JoinInviter")
+  photosUploaded         Photo[]
+  resourcesOwned         Resource[]              @relation("ResourceOwner")
+  resourcesReviewed      Resource[]              @relation("ResourceReviewer")
+  sellerAccesses         SellerAccess[]          @relation("SellerMember")
+  sellerApprovalsGranted SellerAccess[]          @relation("SellerApprover")
+  ordersAsBuyer          Order[]                 @relation("OrderBuyer")
+  ordersAsSeller         Order[]                 @relation("OrderSeller")
+  ordersClosed           Order[]                 @relation("OrderCloser")
+  orderMessages          OrderMessage[]
+  recitationsPublished   Recitation[]
+  notifications          Notification[]
+  deviceTokens           DeviceToken[]
+  notificationPreference NotificationPreference?
+  auditLogs              AuditLog[]
+
+  @@index([churchId])
+  @@index([verificationState])
+  @@map("members")
+}
+
+model MemberSocialLink {
+  id        String   @id @default(uuid())
+  memberId  String   @map("member_id")
+  label     String
+  url       String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@map("member_social_links")
+}
+
+model Session {
+  id               String    @id @default(uuid())
+  memberId         String    @map("member_id")
+  refreshTokenHash String    @map("refresh_token_hash")
+  deviceInfo       String?   @map("device_info")
+  ipAddress        String?   @map("ip_address")
+  expiresAt        DateTime  @map("expires_at")
+  revokedAt        DateTime? @map("revoked_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id         String       @id @default(uuid())
+  memberId   String       @map("member_id")
+  channel    TokenChannel
+  purpose    TokenPurpose
+  codeHash   String       @map("code_hash")
+  expiresAt  DateTime     @map("expires_at")
+  consumedAt DateTime?    @map("consumed_at")
+  attempts   Int          @default(0)
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId, purpose])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// 04 — MEMBERSHIP VERIFICATION
+// ============================================================================
+
+model VerificationRequest {
+  id              String                    @id @default(uuid())
+  memberId        String                    @map("member_id")
+  churchId        String                    @map("church_id")
+  pathway         VerificationPathway
+  evidenceText    String?                   @map("evidence_text")
+  evidenceFileUrl String?                   @map("evidence_file_url")
+  programme       String?
+  completionDate  DateTime?                 @map("completion_date")
+  status          VerificationRequestStatus @default(submitted)
+  reviewerId      String?                   @map("reviewer_id")
+  reviewedAt      DateTime?                 @map("reviewed_at")
+  decisionNote    String?                   @map("decision_note")
+  createdAt       DateTime                  @default(now()) @map("created_at")
+  updatedAt       DateTime                  @updatedAt @map("updated_at")
+
+  member           Member            @relation("VerificationRequester", fields: [memberId], references: [id], onDelete: Cascade)
+  church           Church            @relation(fields: [churchId], references: [id])
+  reviewer         Member?           @relation("VerificationReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  acknowledgements Acknowledgement[]
+
+  @@index([memberId])
+  @@index([churchId, status])
+  @@map("verification_requests")
+}
+
+model Acknowledgement {
+  id             String   @id @default(uuid())
+  requestId      String   @map("request_id")
+  acknowledgerId String   @map("acknowledger_id")
+  note           String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  request      VerificationRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  acknowledger Member              @relation(fields: [acknowledgerId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, acknowledgerId])
+  @@map("acknowledgements")
+}
+
+// ============================================================================
+// 05 — POSTS, COMMENTS, MODERATION, REACTIONS, REPORTS & 10 — ANNOUNCEMENTS
+// ============================================================================
+
+model Post {
+  id               String       @id @default(uuid())
+  authorId         String       @map("author_id")
+  churchId         String       @map("church_id")
+  type             PostType     @default(text)
+  category         PostCategory @default(general)
+  audience         Audience     @default(church)
+  audienceChurchId String?      @map("audience_church_id")
+  audienceGroupId  String?      @map("audience_group_id")
+  body             String?
+  status           PostStatus   @default(pending_review)
+  isOfficial       Boolean      @default(false) @map("is_official")
+  publisherLabel   String?      @map("publisher_label")
+  isPinned         Boolean      @default(false) @map("is_pinned")
+  pinnedUntil      DateTime?    @map("pinned_until")
+  sharedFromPostId String?      @map("shared_from_post_id")
+  approvedAt       DateTime?    @map("approved_at")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  deletedAt        DateTime?    @map("deleted_at")
+
+  author         Member      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  church         Church      @relation("PostAuthorChurch", fields: [churchId], references: [id])
+  audienceChurch Church?     @relation("PostAudienceChurch", fields: [audienceChurchId], references: [id], onDelete: SetNull)
+  audienceGroup  Group?      @relation(fields: [audienceGroupId], references: [id], onDelete: SetNull)
+  sharedFromPost Post?       @relation("PostShares", fields: [sharedFromPostId], references: [id], onDelete: SetNull)
+  shares         Post[]      @relation("PostShares")
+  media          PostMedia[]
+  comments       Comment[]
+
+  @@index([status, audience, churchId, createdAt])
+  @@index([audienceGroupId, status])
+  @@index([isOfficial, status])
+  @@map("posts")
+}
+
+model PostMedia {
+  id        String    @id @default(uuid())
+  postId    String    @map("post_id")
+  kind      MediaKind
+  fileUrl   String    @map("file_url")
+  fileName  String    @map("file_name")
+  mimeType  String    @map("mime_type")
+  sizeBytes Int       @map("size_bytes")
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("post_media")
+}
+
+model ModerationAction {
+  id          String                @id @default(uuid())
+  subjectType ModerationSubjectType @map("subject_type")
+  subjectId   String                @map("subject_id")
+  moderatorId String                @map("moderator_id")
+  action      ModerationActionType
+  reason      String?
+  createdAt   DateTime              @default(now()) @map("created_at")
+  updatedAt   DateTime              @updatedAt @map("updated_at")
+
+  moderator Member @relation(fields: [moderatorId], references: [id])
+
+  @@index([subjectType, subjectId])
+  @@index([moderatorId])
+  @@map("moderation_actions")
+}
+
+model Comment {
+  id              String        @id @default(uuid())
+  postId          String        @map("post_id")
+  authorId        String        @map("author_id")
+  parentCommentId String?       @map("parent_comment_id")
+  body            String
+  status          CommentStatus @default(visible)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  deletedAt       DateTime?     @map("deleted_at")
+
+  post          Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author        Member    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentComment Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: SetNull)
+  replies       Comment[] @relation("CommentReplies")
+
+  @@index([postId, status])
+  @@map("comments")
+}
+
+model Reaction {
+  id          String              @id @default(uuid())
+  subjectType ReactionSubjectType @map("subject_type")
+  subjectId   String              @map("subject_id")
+  memberId    String              @map("member_id")
+  kind        ReactionKind
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectType, subjectId, memberId])
+  @@index([subjectType, subjectId])
+  @@map("reactions")
+}
+
+model Report {
+  id             String            @id @default(uuid())
+  subjectType    ReportSubjectType @map("subject_type")
+  subjectId      String            @map("subject_id")
+  reporterId     String            @map("reporter_id")
+  reason         ReportReason
+  detail         String?
+  status         ReportStatus      @default(open)
+  handledById    String?           @map("handled_by")
+  handledAt      DateTime?         @map("handled_at")
+  resolutionNote String?           @map("resolution_note")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  reporter  Member  @relation("ReportReporter", fields: [reporterId], references: [id])
+  handledBy Member? @relation("ReportHandler", fields: [handledById], references: [id], onDelete: SetNull)
+
+  @@index([status, subjectType])
+  @@map("reports")
+}
+
+// ============================================================================
+// 06 — GROUPS
+// ============================================================================
+
+model Group {
+  id                String            @id @default(uuid())
+  name              String
+  description       String
+  coverUrl          String?           @map("cover_url")
+  scope             GroupScope        @default(church)
+  churchId          String?           @map("church_id")
+  visibility        GroupVisibility   @default(public)
+  joinMode          GroupJoinMode     @default(open) @map("join_mode")
+  genderRestriction GenderRestriction @default(any) @map("gender_restriction")
+  minAge            Int?              @map("min_age")
+  maxAge            Int?              @map("max_age")
+  verifiedOnly      Boolean           @default(false) @map("verified_only")
+  status            GroupStatus       @default(active)
+  createdById       String            @map("created_by")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  deletedAt         DateTime?         @map("deleted_at")
+
+  church          Church?              @relation(fields: [churchId], references: [id], onDelete: SetNull)
+  createdBy       Member               @relation(fields: [createdById], references: [id])
+  allowedChurches GroupAllowedChurch[]
+  members         GroupMember[]
+  joinRequests    GroupJoinRequest[]
+  posts           Post[]
+
+  @@index([scope, churchId, status])
+  @@map("groups")
+}
+
+model GroupAllowedChurch {
+  id        String   @id @default(uuid())
+  groupId   String   @map("group_id")
+  churchId  String   @map("church_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  church Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, churchId])
+  @@map("group_allowed_churches")
+}
+
+model GroupMember {
+  id        String          @id @default(uuid())
+  groupId   String          @map("group_id")
+  memberId  String          @map("member_id")
+  role      GroupMemberRole @default(member)
+  joinedAt  DateTime        @default(now()) @map("joined_at")
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, memberId])
+  @@index([memberId])
+  @@map("group_members")
+}
+
+model GroupJoinRequest {
+  id          String                 @id @default(uuid())
+  groupId     String                 @map("group_id")
+  memberId    String                 @map("member_id")
+  invitedById String?                @map("invited_by")
+  status      GroupJoinRequestStatus @default(pending)
+  decidedById String?                @map("decided_by")
+  decidedAt   DateTime?              @map("decided_at")
+  reason      String?
+  createdAt   DateTime               @default(now()) @map("created_at")
+  updatedAt   DateTime               @updatedAt @map("updated_at")
+
+  group     Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  member    Member  @relation("JoinRequester", fields: [memberId], references: [id], onDelete: Cascade)
+  decidedBy Member? @relation("JoinDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+  invitedBy Member? @relation("JoinInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+
+  @@index([groupId, status])
+  @@index([memberId])
+  @@map("group_join_requests")
+}
+
+// ============================================================================
+// 07 — CHURCH GALLERIES
+// ============================================================================
+
+model Gallery {
+  id        String   @id @default(uuid())
+  churchId  String   @unique @map("church_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  church Church  @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  albums Album[]
+
+  @@map("galleries")
+}
+
+model Album {
+  id           String    @id @default(uuid())
+  galleryId    String    @map("gallery_id")
+  title        String
+  description  String?
+  coverPhotoId String?   @map("cover_photo_id")
+  eventName    String?   @map("event_name")
+  eventDate    DateTime? @map("event_date")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  photos  Photo[]
+
+  @@index([galleryId])
+  @@map("albums")
+}
+
+model Photo {
+  id                       String        @id @default(uuid())
+  albumId                  String?       @map("album_id")
+  churchId                 String        @map("church_id")
+  uploaderId               String        @map("uploader_id")
+  fileUrl                  String        @map("file_url")
+  caption                  String?
+  category                 PhotoCategory @default(other)
+  eventName                String?       @map("event_name")
+  hasMinors                Boolean       @default(false) @map("has_minors")
+  consentConfirmed         Boolean       @default(false) @map("consent_confirmed")
+  parentalConsentConfirmed Boolean       @default(false) @map("parental_consent_confirmed")
+  status                   PhotoStatus   @default(pending_review)
+  rejectionReason          String?       @map("rejection_reason")
+  createdAt                DateTime      @default(now()) @map("created_at")
+  updatedAt                DateTime      @updatedAt @map("updated_at")
+  deletedAt                DateTime?     @map("deleted_at")
+
+  album    Album? @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  church   Church @relation(fields: [churchId], references: [id])
+  uploader Member @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@index([churchId, status, category])
+  @@index([albumId])
+  @@map("photos")
+}
+
+// ============================================================================
+// 08 — RESOURCES & LIBRARY
+// ============================================================================
+
+model Resource {
+  id              String           @id @default(uuid())
+  ownerId         String           @map("owner_id")
+  churchId        String           @map("church_id")
+  title           String
+  description     String
+  category        ResourceCategory @default(other)
+  resourceType    ResourceType     @map("resource_type")
+  format          ResourceFormat
+  access          ResourceAccess
+  price           Decimal?         @db.Decimal(12, 2)
+  currency        String           @default("NGN")
+  stock           Int?
+  status          ResourceStatus   @default(draft)
+  isChurchOwned   Boolean          @default(false) @map("is_church_owned")
+  isListingPaused Boolean          @default(false) @map("is_listing_paused")
+  isHiddenByAdmin Boolean          @default(false) @map("is_hidden_by_admin")
+  hiddenReason    String?          @map("hidden_reason")
+  reviewedById    String?          @map("reviewed_by")
+  reviewNote      String?          @map("review_note")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  deletedAt       DateTime?        @map("deleted_at")
+
+  owner      Member         @relation("ResourceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  church     Church         @relation(fields: [churchId], references: [id])
+  reviewedBy Member?        @relation("ResourceReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  files      ResourceFile[]
+  orders     Order[]
+
+  @@index([churchId, status, category])
+  @@index([ownerId, status])
+  @@map("resources")
+}
+
+model ResourceFile {
+  id             String   @id @default(uuid())
+  resourceId     String   @map("resource_id")
+  fileUrl        String   @map("file_url")
+  fileName       String   @map("file_name")
+  mimeType       String   @map("mime_type")
+  sizeBytes      Int      @map("size_bytes")
+  isPreviewImage Boolean  @default(false) @map("is_preview_image")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  resource Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([resourceId])
+  @@map("resource_files")
+}
+
+// ============================================================================
+// 09 — MARKETPLACE (NO FINANCIALS)
+// ============================================================================
+
+model SellerAccess {
+  id             String             @id @default(uuid())
+  memberId       String             @map("member_id")
+  churchId       String             @map("church_id")
+  approvedById   String             @map("approved_by")
+  plan           SellerPlan
+  startsAt       DateTime           @default(now()) @map("starts_at")
+  endsAt         DateTime?          @map("ends_at")
+  status         SellerAccessStatus @default(active)
+  revokeReason   String?            @map("revoke_reason")
+  tokenReference String?            @map("token_reference")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  member     Member @relation("SellerMember", fields: [memberId], references: [id], onDelete: Cascade)
+  church     Church @relation(fields: [churchId], references: [id])
+  approvedBy Member @relation("SellerApprover", fields: [approvedById], references: [id])
+
+  @@index([memberId, churchId, status])
+  @@map("seller_accesses")
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  resourceId    String      @map("resource_id")
+  buyerId       String      @map("buyer_id")
+  sellerId      String      @map("seller_id")
+  churchId      String      @map("church_id")
+  quantity      Int         @default(1)
+  status        OrderStatus @default(requested)
+  paymentStatus String      @default("not_enabled") @map("payment_status")
+  declineReason String?     @map("decline_reason")
+  cancelReason  String?     @map("cancel_reason")
+  acceptedAt    DateTime?   @map("accepted_at")
+  receivedAt    DateTime?   @map("received_at")
+  closedById    String?     @map("closed_by")
+  closedAt      DateTime?   @map("closed_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  resource Resource       @relation(fields: [resourceId], references: [id])
+  buyer    Member         @relation("OrderBuyer", fields: [buyerId], references: [id])
+  seller   Member         @relation("OrderSeller", fields: [sellerId], references: [id])
+  church   Church         @relation(fields: [churchId], references: [id])
+  closedBy Member?        @relation("OrderCloser", fields: [closedById], references: [id], onDelete: SetNull)
+  messages OrderMessage[]
+
+  @@index([churchId, status])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("orders")
+}
+
+model OrderMessage {
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  senderId  String   @map("sender_id")
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sender Member @relation(fields: [senderId], references: [id])
+
+  @@index([orderId])
+  @@map("order_messages")
+}
+
+// ============================================================================
+// 10 — RECITATIONS & NOTIFICATIONS
+// ============================================================================
+
+model Recitation {
+  id            String           @id @default(uuid())
+  title         String
+  body          String
+  attachmentUrl String?          @map("attachment_url")
+  appliesOn     DateTime         @map("applies_on")
+  status        RecitationStatus @default(draft)
+  publishedById String           @map("published_by")
+  publishedAt   DateTime?        @map("published_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  deletedAt     DateTime?        @map("deleted_at")
+
+  publishedBy Member @relation(fields: [publishedById], references: [id])
+
+  @@index([status, appliesOn])
+  @@map("recitations")
+}
+
+model Notification {
+  id          String    @id @default(uuid())
+  memberId    String    @map("member_id")
+  type        String
+  subjectType String?   @map("subject_type")
+  subjectId   String?   @map("subject_id")
+  title       String
+  body        String
+  readAt      DateTime? @map("read_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId, readAt, createdAt])
+  @@map("notifications")
+}
+
+model DeviceToken {
+  id        String         @id @default(uuid())
+  memberId  String         @map("member_id")
+  platform  DevicePlatform
+  token     String         @unique
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@map("device_tokens")
+}
+
+model NotificationPreference {
+  id                String   @id @default(uuid())
+  memberId          String   @unique @map("member_id")
+  pushReactions     Boolean  @default(true) @map("push_reactions")
+  pushComments      Boolean  @default(true) @map("push_comments")
+  pushAnnouncements Boolean  @default(true) @map("push_announcements")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
+}
+
+// ============================================================================
+// AUDIT LOG (Admin & System Activity Tracking)
+// ============================================================================
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?  @map("actor_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  metadata   Json?
+  ipAddress  String?  @map("ip_address")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor Member? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

@@ -1,0 +1,474 @@
+import { MembersService } from './members.service';
+import { ChangeChurchDto, SocialLinkDto, SuspendMemberDto, TogglePrivacyDto, UpdateProfileDto } from './dto/member.dto';
+import { AuthenticatedUser } from '../../common/decorators/current-user.decorator';
+export declare class MembersController {
+    private readonly membersService;
+    constructor(membersService: MembersService);
+    getMe(user: AuthenticatedUser): Promise<{
+        id: string;
+        firstName: string;
+        middleName: string | null;
+        surname: string;
+        fullName: string;
+        churchId: string;
+        church: {
+            id: string;
+            name: string;
+            state?: string;
+            lga?: string;
+        } | undefined;
+        verificationState: import(".prisma/client").$Enums.VerificationState;
+        isVerified: boolean;
+        verificationBadge: string;
+        profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+        photoUrl: string;
+        bio: string | null;
+        gender: string | undefined;
+        state: string | undefined;
+        lga: string | undefined;
+    } | {
+        email: string | undefined;
+        phone: string | undefined;
+        dateOfBirth: Date | undefined;
+        residentialLocation: string | undefined;
+        socialLinks: {
+            id: string;
+            label: string;
+            url: string;
+        }[] | undefined;
+        isPlatformAdmin: boolean | undefined;
+        suspensionReason: any;
+        id: string;
+        firstName: string;
+        middleName: string | null;
+        surname: string;
+        fullName: string;
+        churchId: string;
+        church: {
+            id: string;
+            name: string;
+            state?: string;
+            lga?: string;
+        } | undefined;
+        verificationState: import(".prisma/client").$Enums.VerificationState;
+        isVerified: boolean;
+        verificationBadge: string;
+        profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+        photoUrl: string;
+        bio: string | null;
+        gender: string | undefined;
+        state: string | undefined;
+        lga: string | undefined;
+    } | null>;
+    updateMe(user: AuthenticatedUser, dto: UpdateProfileDto): Promise<{
+        profile: {
+            id: string;
+            firstName: string;
+            middleName: string | null;
+            surname: string;
+            fullName: string;
+            churchId: string;
+            church: {
+                id: string;
+                name: string;
+                state?: string;
+                lga?: string;
+            } | undefined;
+            verificationState: import(".prisma/client").$Enums.VerificationState;
+            isVerified: boolean;
+            verificationBadge: string;
+            profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+            photoUrl: string;
+            bio: string | null;
+            gender: string | undefined;
+            state: string | undefined;
+            lga: string | undefined;
+        } | {
+            email: string | undefined;
+            phone: string | undefined;
+            dateOfBirth: Date | undefined;
+            residentialLocation: string | undefined;
+            socialLinks: {
+                id: string;
+                label: string;
+                url: string;
+            }[] | undefined;
+            isPlatformAdmin: boolean | undefined;
+            suspensionReason: any;
+            id: string;
+            firstName: string;
+            middleName: string | null;
+            surname: string;
+            fullName: string;
+            churchId: string;
+            church: {
+                id: string;
+                name: string;
+                state?: string;
+                lga?: string;
+            } | undefined;
+            verificationState: import(".prisma/client").$Enums.VerificationState;
+            isVerified: boolean;
+            verificationBadge: string;
+            profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+            photoUrl: string;
+            bio: string | null;
+            gender: string | undefined;
+            state: string | undefined;
+            lga: string | undefined;
+        } | null;
+        removedFromIneligibleGroups: string[];
+    }>;
+    togglePrivacy(user: AuthenticatedUser, dto: TogglePrivacyDto): Promise<{
+        id: string;
+        firstName: string;
+        middleName: string | null;
+        surname: string;
+        fullName: string;
+        churchId: string;
+        church: {
+            id: string;
+            name: string;
+            state?: string;
+            lga?: string;
+        } | undefined;
+        verificationState: import(".prisma/client").$Enums.VerificationState;
+        isVerified: boolean;
+        verificationBadge: string;
+        profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+        photoUrl: string;
+        bio: string | null;
+        gender: string | undefined;
+        state: string | undefined;
+        lga: string | undefined;
+    } | {
+        email: string | undefined;
+        phone: string | undefined;
+        dateOfBirth: Date | undefined;
+        residentialLocation: string | undefined;
+        socialLinks: {
+            id: string;
+            label: string;
+            url: string;
+        }[] | undefined;
+        isPlatformAdmin: boolean | undefined;
+        suspensionReason: any;
+        id: string;
+        firstName: string;
+        middleName: string | null;
+        surname: string;
+        fullName: string;
+        churchId: string;
+        church: {
+            id: string;
+            name: string;
+            state?: string;
+            lga?: string;
+        } | undefined;
+        verificationState: import(".prisma/client").$Enums.VerificationState;
+        isVerified: boolean;
+        verificationBadge: string;
+        profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+        photoUrl: string;
+        bio: string | null;
+        gender: string | undefined;
+        state: string | undefined;
+        lga: string | undefined;
+    } | null>;
+    changeChurch(user: AuthenticatedUser, dto: ChangeChurchDto): Promise<{
+        profile: {
+            id: string;
+            firstName: string;
+            middleName: string | null;
+            surname: string;
+            fullName: string;
+            churchId: string;
+            church: {
+                id: string;
+                name: string;
+                state?: string;
+                lga?: string;
+            } | undefined;
+            verificationState: import(".prisma/client").$Enums.VerificationState;
+            isVerified: boolean;
+            verificationBadge: string;
+            profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+            photoUrl: string;
+            bio: string | null;
+            gender: string | undefined;
+            state: string | undefined;
+            lga: string | undefined;
+        } | {
+            email: string | undefined;
+            phone: string | undefined;
+            dateOfBirth: Date | undefined;
+            residentialLocation: string | undefined;
+            socialLinks: {
+                id: string;
+                label: string;
+                url: string;
+            }[] | undefined;
+            isPlatformAdmin: boolean | undefined;
+            suspensionReason: any;
+            id: string;
+            firstName: string;
+            middleName: string | null;
+            surname: string;
+            fullName: string;
+            churchId: string;
+            church: {
+                id: string;
+                name: string;
+                state?: string;
+                lga?: string;
+            } | undefined;
+            verificationState: import(".prisma/client").$Enums.VerificationState;
+            isVerified: boolean;
+            verificationBadge: string;
+            profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+            photoUrl: string;
+            bio: string | null;
+            gender: string | undefined;
+            state: string | undefined;
+            lga: string | undefined;
+        } | null;
+        verificationReset: boolean;
+        platformVerificationRetained: boolean;
+        removedFromIneligibleGroups: string[];
+    }>;
+    addSocialLink(user: AuthenticatedUser, dto: SocialLinkDto): Promise<{
+        url: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        memberId: string;
+        label: string;
+    }>;
+    deleteSocialLink(user: AuthenticatedUser, linkId: string): Promise<{
+        deleted: boolean;
+        id: string;
+    }>;
+    getMemberProfile(memberId: string, viewer?: AuthenticatedUser): Promise<{
+        profile: {
+            id: string;
+            firstName: string;
+            middleName: string | null;
+            surname: string;
+            fullName: string;
+            churchId: string;
+            church: {
+                id: string;
+                name: string;
+                state?: string;
+                lga?: string;
+            } | undefined;
+            verificationState: import(".prisma/client").$Enums.VerificationState;
+            isVerified: boolean;
+            verificationBadge: string;
+            profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+            photoUrl: string;
+            bio: string | null;
+            gender: string | undefined;
+            state: string | undefined;
+            lga: string | undefined;
+        } | {
+            email: string | undefined;
+            phone: string | undefined;
+            dateOfBirth: Date | undefined;
+            residentialLocation: string | undefined;
+            socialLinks: {
+                id: string;
+                label: string;
+                url: string;
+            }[] | undefined;
+            isPlatformAdmin: boolean | undefined;
+            suspensionReason: any;
+            id: string;
+            firstName: string;
+            middleName: string | null;
+            surname: string;
+            fullName: string;
+            churchId: string;
+            church: {
+                id: string;
+                name: string;
+                state?: string;
+                lga?: string;
+            } | undefined;
+            verificationState: import(".prisma/client").$Enums.VerificationState;
+            isVerified: boolean;
+            verificationBadge: string;
+            profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+            photoUrl: string;
+            bio: string | null;
+            gender: string | undefined;
+            state: string | undefined;
+            lga: string | undefined;
+        } | null;
+        community: {
+            posts: {
+                type: import(".prisma/client").$Enums.PostType;
+                churchId: string;
+                id: string;
+                status: import(".prisma/client").$Enums.PostStatus;
+                createdAt: Date;
+                updatedAt: Date;
+                deletedAt: Date | null;
+                audience: import(".prisma/client").$Enums.Audience;
+                authorId: string;
+                category: import(".prisma/client").$Enums.PostCategory;
+                audienceChurchId: string | null;
+                audienceGroupId: string | null;
+                body: string | null;
+                isOfficial: boolean;
+                publisherLabel: string | null;
+                isPinned: boolean;
+                pinnedUntil: Date | null;
+                sharedFromPostId: string | null;
+                approvedAt: Date | null;
+            }[];
+            groups: {
+                name: string;
+                id: string;
+                scope: import(".prisma/client").$Enums.GroupScope;
+                visibility: import(".prisma/client").$Enums.GroupVisibility;
+            }[];
+            resources: {
+                description: string;
+                format: import(".prisma/client").$Enums.ResourceFormat;
+                title: string;
+                churchId: string;
+                id: string;
+                status: import(".prisma/client").$Enums.ResourceStatus;
+                createdAt: Date;
+                updatedAt: Date;
+                deletedAt: Date | null;
+                category: import(".prisma/client").$Enums.ResourceCategory;
+                ownerId: string;
+                resourceType: import(".prisma/client").$Enums.ResourceType;
+                access: import(".prisma/client").$Enums.ResourceAccess;
+                price: import("@prisma/client/runtime/library").Decimal | null;
+                currency: string;
+                stock: number | null;
+                isChurchOwned: boolean;
+                isListingPaused: boolean;
+                isHiddenByAdmin: boolean;
+                hiddenReason: string | null;
+                reviewedById: string | null;
+                reviewNote: string | null;
+            }[];
+        };
+    }>;
+    suspendMember(memberId: string, dto: SuspendMemberDto, user: AuthenticatedUser): Promise<{
+        id: string;
+        firstName: string;
+        middleName: string | null;
+        surname: string;
+        fullName: string;
+        churchId: string;
+        church: {
+            id: string;
+            name: string;
+            state?: string;
+            lga?: string;
+        } | undefined;
+        verificationState: import(".prisma/client").$Enums.VerificationState;
+        isVerified: boolean;
+        verificationBadge: string;
+        profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+        photoUrl: string;
+        bio: string | null;
+        gender: string | undefined;
+        state: string | undefined;
+        lga: string | undefined;
+    } | {
+        email: string | undefined;
+        phone: string | undefined;
+        dateOfBirth: Date | undefined;
+        residentialLocation: string | undefined;
+        socialLinks: {
+            id: string;
+            label: string;
+            url: string;
+        }[] | undefined;
+        isPlatformAdmin: boolean | undefined;
+        suspensionReason: any;
+        id: string;
+        firstName: string;
+        middleName: string | null;
+        surname: string;
+        fullName: string;
+        churchId: string;
+        church: {
+            id: string;
+            name: string;
+            state?: string;
+            lga?: string;
+        } | undefined;
+        verificationState: import(".prisma/client").$Enums.VerificationState;
+        isVerified: boolean;
+        verificationBadge: string;
+        profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+        photoUrl: string;
+        bio: string | null;
+        gender: string | undefined;
+        state: string | undefined;
+        lga: string | undefined;
+    } | null>;
+    reinstateMember(memberId: string, user: AuthenticatedUser): Promise<{
+        id: string;
+        firstName: string;
+        middleName: string | null;
+        surname: string;
+        fullName: string;
+        churchId: string;
+        church: {
+            id: string;
+            name: string;
+            state?: string;
+            lga?: string;
+        } | undefined;
+        verificationState: import(".prisma/client").$Enums.VerificationState;
+        isVerified: boolean;
+        verificationBadge: string;
+        profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+        photoUrl: string;
+        bio: string | null;
+        gender: string | undefined;
+        state: string | undefined;
+        lga: string | undefined;
+    } | {
+        email: string | undefined;
+        phone: string | undefined;
+        dateOfBirth: Date | undefined;
+        residentialLocation: string | undefined;
+        socialLinks: {
+            id: string;
+            label: string;
+            url: string;
+        }[] | undefined;
+        isPlatformAdmin: boolean | undefined;
+        suspensionReason: any;
+        id: string;
+        firstName: string;
+        middleName: string | null;
+        surname: string;
+        fullName: string;
+        churchId: string;
+        church: {
+            id: string;
+            name: string;
+            state?: string;
+            lga?: string;
+        } | undefined;
+        verificationState: import(".prisma/client").$Enums.VerificationState;
+        isVerified: boolean;
+        verificationBadge: string;
+        profileVisibility: import(".prisma/client").$Enums.ProfileVisibility;
+        photoUrl: string;
+        bio: string | null;
+        gender: string | undefined;
+        state: string | undefined;
+        lga: string | undefined;
+    } | null>;
+}
