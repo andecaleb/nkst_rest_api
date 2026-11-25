@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NKST API — Digital Platform Developer Portal</title>
+    <meta
+      name="description"
+      content="Official backend API service powering the NKST Digital Platform. Explore OpenAPI documentation, available services, and live system status."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="/" class="brand" aria-label="NKST API Home">
+          <span class="brand-mark" aria-hidden="true">N</span>
+          <span class="brand-text">
+            <span class="brand-name">NKST API</span>
+            <span class="brand-sub">Digital Platform</span>
+          </span>
+        </a>
+
+        <nav class="nav" aria-label="Primary">
+          <a href="#services" class="nav-link">Services</a>
+          <a href="#resources" class="nav-link">Resources</a>
+          <a href="/docs" class="nav-link nav-link-accent">Documentation</a>
+          <a
+            href="/health"
+            class="status-pill"
+            id="nav-status"
+            aria-live="polite"
+            title="View live API health endpoint"
+          >
+            <span class="status-dot" id="nav-status-dot" aria-hidden="true"></span>
+            <span id="nav-status-text">Checking status</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Official Backend Service &middot; JSON:API 1.1</p>
+            <h1>Powering the NKST Digital Experience.</h1>
+            <p class="hero-lead">
+              The core API service for the NKST Digital Platform, headquartered in Mkar, Benue State.
+              Built for member identity, congregation management, 4-pathway verification, community
+              communication, library resources, and platform governance.
+            </p>
+            <div class="hero-actions">
+              <a href="/docs" class="btn btn-primary">Explore API Documentation</a>
+              <a href="/health" class="btn btn-secondary" id="hero-status-btn">API Status</a>
+            </div>
+          </div>
+
+          <aside class="hero-panel" aria-label="API Runtime Summary">
+            <div class="panel-header">
+              <span class="panel-title">Service Overview</span>
+              <span class="panel-badge" id="panel-status-badge">Verifying</span>
+            </div>
+            <dl class="meta-list">
+              <div class="meta-row">
+                <dt>Service</dt>
+                <dd id="meta-service">NKST Community API</dd>
+              </div>
+              <div class="meta-row">
+                <dt>Version</dt>
+                <dd><code id="meta-version">1.0.0</code></dd>
+              </div>
+              <div class="meta-row">
+                <dt>Environment</dt>
+                <dd><code id="meta-environment">production</code></dd>
+              </div>
+              <div class="meta-row">
+                <dt>Base URL</dt>
+                <dd><code id="meta-base-url">/api/v1</code></dd>
+              </div>
+              <div class="meta-row">
+                <dt>Documentation</dt>
+                <dd><a href="/docs" class="inline-link">/docs</a></dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <!-- API Information Strip -->
+      <section class="section section-bordered" id="api-info" aria-labelledby="api-info-heading">
+        <div class="container">
+          <div class="section-header">
+            <p class="eyebrow">Service Specification</p>
+            <h2 id="api-info-heading">API Information</h2>
+          </div>
+
+          <div class="info-grid">
+            <article class="info-card">
+              <span class="info-label">Service Name</span>
+              <strong class="info-value" id="info-service">NKST Community API</strong>
+              <p class="info-note">NestJS &middot; Express &middot; PostgreSQL</p>
+            </article>
+            <article class="info-card">
+              <span class="info-label">API Version</span>
+              <strong class="info-value mono" id="info-version">v1.0.0</strong>
+              <p class="info-note">OpenAPI 3.1 &middot; JSON:API 1.1</p>
+            </article>
+            <article class="info-card">
+              <span class="info-label">Environment</span>
+              <strong class="info-value mono" id="info-environment">development</strong>
+              <p class="info-note" id="info-status-note">Health check: /health</p>
+            </article>
+            <article class="info-card">
+              <span class="info-label">API Base URL</span>
+              <strong class="info-value mono" id="info-base-url">/api/v1</strong>
+              <p class="info-note">
+                Interactive reference at <a href="/docs" class="inline-link">/docs</a>
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Available Services / Modules -->
+      <section class="section section-bordered" id="services" aria-labelledby="services-heading">
+        <div class="container">
+          <div class="section-header section-header-row">
+            <div>
+              <p class="eyebrow">Implemented Capabilities</p>
+              <h2 id="services-heading">Available Services &amp; Modules</h2>
+            </div>
+            <p class="section-summary">
+              All modules listed below are implemented and active in the current MVP service.
+            </p>
+          </div>
+
+          <div class="modules-grid">
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">01</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Roles &amp; Permissions</h3>
+              <p>
+                Role-based access control (RBAC) catalog, granular permission definitions, and
+                member role assignments across platform and church scopes.
+              </p>
+              <code class="module-route">/api/v1/roles</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">02</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Authentication &amp; Sessions</h3>
+              <p>
+                Member registration, OTP account verification, JWT access &amp; refresh tokens,
+                password recovery, session management, and account deactivation.
+              </p>
+              <code class="module-route">/api/v1/auth</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">03</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Members &amp; Profiles</h3>
+              <p>
+                Member profile management, field-level privacy controls, church affiliation updates,
+                social links, and suspension or reinstatement workflows.
+              </p>
+              <code class="module-route">/api/v1/members</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">04</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Churches &amp; Affiliation</h3>
+              <p>
+                Congregation directory, state and LGA location listings, geographic map coordinates,
+                and church administration starting from Mkar National HQ.
+              </p>
+              <code class="module-route">/api/v1/churches</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">05</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Membership Verification</h3>
+              <p>
+                4-pathway membership verification requests, member acknowledgements, approval and
+                rejection review queues, and direct administrative validation.
+              </p>
+              <code class="module-route">/api/v1/verification</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">06</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Posts &amp; Moderation</h3>
+              <p>
+                Community feed, posts, comments, reactions, shares, member content reports,
+                moderation queues, and moderation audit history.
+              </p>
+              <code class="module-route">/api/v1/posts</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">07</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Groups</h3>
+              <p>
+                Community groups, membership join/leave flows, join request reviews, invitations,
+                and group leadership promotion or removal.
+              </p>
+              <code class="module-route">/api/v1/groups</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">08</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Church Galleries</h3>
+              <p>
+                Congregation photo albums, media photo submissions, and moderator review queues for
+                church gallery curation.
+              </p>
+              <code class="module-route">/api/v1/gallery</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">09</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Resources &amp; Central Library</h3>
+              <p>
+                Central and personal digital libraries, resource authoring and submission, editorial
+                review queues, downloads, and archiving.
+              </p>
+              <code class="module-route">/api/v1/resources</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">10</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Non-Financial Marketplace</h3>
+              <p>
+                Seller access governance, listings, order requests, fulfilment pool coordination,
+                and order messaging without in-app financial settlement.
+              </p>
+              <code class="module-route">/api/v1/marketplace</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">11</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Announcements, Recitations &amp; Notifications</h3>
+              <p>
+                Official church announcements, recitation publishing controls, in-app notifications,
+                read states, device tokens, and notification preferences.
+              </p>
+              <code class="module-route">/api/v1/communication</code>
+            </article>
+
+            <article class="module-card">
+              <div class="module-top">
+                <span class="module-index">12</span>
+                <span class="module-state">Implemented</span>
+              </div>
+              <h3>Admin Counts &amp; Audit Trail</h3>
+              <p>
+                Platform-wide administrative counts, immutable system audit logs, and moderation
+                action records for governance oversight.
+              </p>
+              <code class="module-route">/api/v1/audit</code>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Developer Resources -->
+      <section class="section section-bordered" id="resources" aria-labelledby="resources-heading">
+        <div class="container">
+          <div class="section-header">
+            <p class="eyebrow">Integration &amp; Operations</p>
+            <h2 id="resources-heading">Developer Resources</h2>
+          </div>
+
+          <div class="resources-grid">
+            <a href="/docs" class="resource-card">
+              <span class="resource-tag">Interactive Reference</span>
+              <h3>API Documentation</h3>
+              <p>
+                Browse endpoints, request schemas, JSON:API 1.1 response envelopes, and test calls
+                directly in the Scalar OpenAPI reference.
+              </p>
+              <span class="resource-link">Open /docs &rarr;</span>
+            </a>
+
+            <a href="/openapi.json" class="resource-card">
+              <span class="resource-tag">OpenAPI 3.1</span>
+              <h3>Raw OpenAPI Specification</h3>
+              <p>
+                Download or import the live machine-readable OpenAPI JSON document for client SDK
+                generation and automated contract validation.
+              </p>
+              <span class="resource-link">View /openapi.json &rarr;</span>
+            </a>
+
+            <a href="/health" class="resource-card">
+              <span class="resource-tag">Observability</span>
+              <h3>API Health &amp; Status</h3>
+              <p>
+                Check service availability and runtime metadata via the lightweight JSON:API health
+                check endpoint outside the versioned prefix.
+              </p>
+              <span class="resource-link">Inspect /health &rarr;</span>
+            </a>
+
+            <article class="resource-card resource-card-static">
+              <span class="resource-tag">Authentication &amp; Support</span>
+              <h3>Bearer JWT &amp; Contact</h3>
+              <p>
+                Protected endpoints require a Bearer JWT from
+                <code>POST /api/v1/auth/login</code>. For platform administration and technical
+                coordination, contact NKST National Headquarters, Mkar.
+              </p>
+              <span class="resource-meta">admin@nkst.org.ng</span>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <p class="footer-brand">NKST Digital Platform</p>
+          <p class="footer-copy">
+            &copy; <span id="copyright-year">2026</span> NKST Digital Platform. National
+            Headquarters, Mkar, Benue State, Nigeria.
+          </p>
+        </div>
+        <div class="footer-links">
+          <a href="/docs">Documentation</a>
+          <a href="/openapi.json">OpenAPI JSON</a>
+          <a href="/health">Health Status</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
